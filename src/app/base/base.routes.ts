@@ -14,6 +14,10 @@ export const baseRoutes: Routes = [
     loadComponent: () => import('./pages').then(c => c.UncommonPageComponent)
   },
   {
+    path: 'other',
+    loadComponent: () => import('./pages').then(c => c.OtherPageComponent)
+  },
+  {
     path: '**',
     redirectTo: '',
   }

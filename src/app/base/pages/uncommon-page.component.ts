@@ -1,5 +1,14 @@
 import { Component, signal } from '@angular/core';
-import { I18nPluralPipe, I18nSelectPipe, SlicePipe } from '@angular/common';
+import {
+  I18nPluralPipe,
+  I18nSelectPipe,
+  JsonPipe,
+  SlicePipe,
+  KeyValuePipe,
+  TitleCasePipe,
+  AsyncPipe,
+} from '@angular/common';
+import { Observable, interval, tap } from 'rxjs';
 
 import { FieldsetModule } from 'primeng/fieldset';
 import { PanelModule } from 'primeng/panel';
@@ -15,6 +24,10 @@ import { ButtonModule } from 'primeng/button';
     I18nSelectPipe,
     I18nPluralPipe,
     SlicePipe,
+    JsonPipe,
+    KeyValuePipe,
+    TitleCasePipe,
+    AsyncPipe,
   ],
   template: `
     <p-panel header="Pipes no tan comunes" class="p-1">
@@ -44,25 +57,42 @@ import { ButtonModule } from 'primeng/button';
           <b>Original</b>
           <pre>{{ clients() }}</pre>
           <b>Slice:0:2</b>
-          <pre>{{ clients() | slice: 0 : 2 }}</pre>
+          <pre>{{ clients() | slice : 0 : 2 }}</pre>
           <b>Slice:1:2</b>
-          <pre>{{ clients() | slice: 1 : 2 }}</pre>
+          <pre>{{ clients() | slice : 1 : 2 }}</pre>
           <b>Slice:3:4</b>
-          <pre>{{ clients() | slice: 3 : 4 }}</pre>
+          <pre>{{ clients() | slice : 3 : 4 }}</pre>
           <b>Slice:0:-1</b>
-          <pre>{{ clients() | slice: 0 : -1 }}</pre>
+          <pre>{{ clients() | slice : 0 : -1 }}</pre>
           <b>Slice:0:-2</b>
-          <pre>{{ clients() | slice: 0 : -2 }}</pre>
+          <pre>{{ clients() | slice : 0 : -2 }}</pre>
         </p-fieldset>
       </div>
       <div class="col-12 sm:col-6">
-        <p-fieldset legend="JSON Pipe" [toggleable]="true"> </p-fieldset>
+        <p-fieldset legend="JSON Pipe" [toggleable]="true">
+          {{ person() | json }}
+        </p-fieldset>
       </div>
       <div class="col-12 sm:col-6">
-        <p-fieldset legend="KeyValue Pipe" [toggleable]="true"> </p-fieldset>
+        <p-fieldset legend="KeyValue Pipe" [toggleable]="true">
+          <ul>
+            @for(item of person() | keyvalue; track item) {
+            <b>{{ item.key | titlecase }}:</b>
+            {{
+              item.value
+            }}
+            }
+          </ul>
+        </p-fieldset>
       </div>
       <div class="col-12 sm:col-6">
-        <p-fieldset legend="Async Pipe" [toggleable]="true"> </p-fieldset>
+        <p-fieldset legend="Async Pipe" [toggleable]="true">
+          @if(!(myObservableTimer() | async)) { Resolviendo el observable }
+          <pre>{{ myObservableTimer() | async }}</pre>
+
+          @if(!(promiseValue() | async)) { Resolviendo la promesa }
+          <pre>{{ promiseValue() | async }}</pre>
+        </p-fieldset>
       </div>
     </div>
   `,
@@ -108,4 +138,26 @@ export class UncommonPageComponent {
   public deleteClient(): void {
     this.clients.update((clients) => clients.slice(0, -1) as string[]);
   }
+
+  // KeyUp Pipe
+  public person = signal({
+    name: 'Hanss',
+    age: 27,
+    address: 'Quetzaltenango, Guatemala',
+  });
+
+  // Async Pipe
+  public myObservableTimer = signal<Observable<number>>(
+    interval(2000).pipe(tap((value) => console.log('tap:', value)))
+  );
+
+  public promiseValue = signal<Promise<string>>(
+    new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve('Promise resolved!');
+        console.log('Tenemos data en la promesa');
+        this.person.update((item) => ({ ...item, name: 'Otro nombre' }));
+      }, 3500);
+    })
+  );
 }

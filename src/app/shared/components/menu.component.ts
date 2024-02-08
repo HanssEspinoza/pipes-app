@@ -51,6 +51,7 @@ export class MenuComponent {
           {
             label: 'Otro elemento',
             icon: PrimeIcons.COG,
+            routerLink: 'other',
           },
         ],
       },
