@@ -5,7 +5,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 
-import { CanFlyPipe, ToggleCasePipe } from '../pipes';
+import { CanFlyPipe, SortByPipe, ToggleCasePipe } from '../pipes';
 import { Color, Hero } from '../model';
 import { TitleCasePipe } from '@angular/common';
 
@@ -20,6 +20,7 @@ import { TitleCasePipe } from '@angular/common';
     TableModule,
     CanFlyPipe,
     TitleCasePipe,
+    SortByPipe,
   ],
   template: `
     <p-panel header="Pipes personalizados" class="p-1">
@@ -42,25 +43,28 @@ import { TitleCasePipe } from '@angular/common';
           label="Por nombre"
           icon="pi pi-sort"
           styleClass="p-button-warning"
+          (click)="changeOrder('name')"
         />
         <p-button
           class="mr-2"
           label="Por volar"
           icon="pi pi-sort"
           styleClass="p-button-danger"
+          (click)="changeOrder('canFly')"
         />
         <p-button
           class="mr-2"
           label="Por color"
           icon="pi pi-sort"
           styleClass="p-button-info"
+          (click)="changeOrder('color')"
         />
       </div>
     </p-toolbar>
 
     <div class="grid">
       <div class="col mt-2">
-        <p-table [value]="heroes()" [tableStyle]="{ 'min-width': '50rem' }">
+        <p-table [value]="heroes() | sortBy: orderBy()" [tableStyle]="{ 'min-width': '50rem' }">
           <ng-template pTemplate="header">
             <tr>
               <th>Name</th>
@@ -83,6 +87,8 @@ import { TitleCasePipe } from '@angular/common';
 })
 export class OtherPageComponent {
   public isUpperCase = signal<boolean>(false);
+
+  public orderBy = signal<keyof Hero | ''>('');
 
   public heroes = signal<Hero[]>([
     {
@@ -114,5 +120,9 @@ export class OtherPageComponent {
 
   toggleUpperCase() {
     this.isUpperCase.update((isUpperCase) => !isUpperCase);
+  }
+
+  changeOrder(order: keyof Hero | '') {
+    this.orderBy.set(order);
   }
 }
